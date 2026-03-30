@@ -532,6 +532,268 @@ a:hover {
   letter-spacing: 0.02em;
 }
 
+/* Splash overlay */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 32px;
+  overflow: auto;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.splash-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(37, 99, 235, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 45%, #000 20%, transparent 72%);
+}
+
+[data-theme='dark'] .splash-grid {
+  background-image:
+    linear-gradient(rgba(96, 165, 250, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 165, 250, 0.09) 1px, transparent 1px);
+}
+
+.splash-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 3px
+  );
+}
+
+[data-theme='dark'] .splash-scanlines {
+  opacity: 0.08;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.06) 2px,
+    rgba(255, 255, 255, 0.06) 3px
+  );
+}
+
+.splash-watermark {
+  position: absolute;
+  left: 50%;
+  top: 1.35em;
+  transform: translate(-50%, 0) rotate(-45deg);
+  transform-origin: center;
+  margin: 0;
+  font-size: clamp(68px, 15vw, 132px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(37, 99, 235, 0.14);
+  text-shadow: 0 0 80px rgba(37, 99, 235, 0.12);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+  animation: sentinel-drift 14s linear infinite;
+}
+
+[data-theme='dark'] .splash-watermark {
+  color: rgba(96, 165, 250, 0.16);
+  text-shadow: 0 0 100px rgba(96, 165, 250, 0.15);
+}
+
+.splash-toolbar {
+  position: absolute;
+  top: 18px;
+  right: max(16px, calc(50vw - 560px));
+  z-index: 2;
+}
+
+.splash-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(28px, 5vh, 40px);
+  max-width: 920px;
+  width: 100%;
+}
+
+.splash-frame {
+  position: relative;
+  text-align: center;
+  padding: clamp(28px, 5vw, 48px) clamp(20px, 4vw, 40px);
+  width: 100%;
+}
+
+.splash-frame-corner {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-color: var(--accent);
+  opacity: 0.55;
+}
+
+.splash-frame-corner--tl {
+  top: 0;
+  left: 0;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.splash-frame-corner--tr {
+  top: 0;
+  right: 0;
+  border-top: 2px solid;
+  border-right: 2px solid;
+}
+
+.splash-frame-corner--bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+}
+
+.splash-frame-corner--br {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+.splash-title {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.splash-name-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.12em;
+  font-size: clamp(2.75rem, 9vw, 4.75rem);
+}
+
+.splash-name-shimmer {
+  display: inline-block;
+  background: linear-gradient(
+    100deg,
+    var(--text) 0%,
+    var(--accent) 42%,
+    var(--text) 84%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: splash-shimmer 10s ease-in-out infinite;
+}
+
+.splash-name-m {
+  color: var(--accent);
+  text-shadow: 0 0 42px var(--accent-soft);
+}
+
+.splash-role {
+  margin: clamp(20px, 3vw, 28px) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+  font-size: clamp(0.95rem, 2.1vw, 1.15rem);
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.splash-prompt {
+  color: var(--accent);
+  font-weight: 700;
+  user-select: none;
+}
+
+.splash-role-text {
+  color: var(--text-muted);
+}
+
+.splash-cursor {
+  display: inline-block;
+  color: var(--accent);
+  animation: splash-cursor-blink 1.05s step-end infinite;
+  font-weight: 400;
+}
+
+.splash-enter {
+  min-width: 200px;
+}
+
+.splash-hint {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@keyframes splash-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes splash-cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-name-shimmer {
+    animation: none;
+    color: var(--text);
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+  }
+
+  .splash-cursor {
+    animation: none;
+    opacity: 1;
+  }
+
+  .splash-watermark {
+    animation: none;
+  }
+}
+
 /* Sections */
 .section {
   position: relative;

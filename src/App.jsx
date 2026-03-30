@@ -132,6 +132,100 @@ function GlobeCanvas({ theme = 'light' }) {
   )
 }
 
+// ─── Splash (identity overlay) ────────────────────────────────────────────────
+function SplashScreen({ open, onDismiss, theme, onToggleTheme }) {
+  const dismissRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e) => {
+      if (e.key === 'Escape') onDismiss()
+    }
+    window.addEventListener('keydown', onKey)
+    const id = requestAnimationFrame(() => dismissRef.current?.focus())
+    return () => {
+      document.body.style.overflow = prevOverflow
+      window.removeEventListener('keydown', onKey)
+      cancelAnimationFrame(id)
+    }
+  }, [open, onDismiss])
+
+  if (!open) return null
+
+  return (
+    <div
+      className="splash"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="splash-title"
+    >
+      <div className="splash-grid" aria-hidden="true" />
+      <div className="splash-scanlines" aria-hidden="true" />
+      <p className="splash-watermark" aria-hidden="true">
+        SENTINEL
+      </p>
+
+      <div className="splash-toolbar">
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={onToggleTheme}
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+        >
+          {theme === 'dark' ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      <div className="splash-inner">
+        <div className="splash-frame">
+          <div className="splash-frame-corner splash-frame-corner--tl" aria-hidden="true" />
+          <div className="splash-frame-corner splash-frame-corner--tr" aria-hidden="true" />
+          <div className="splash-frame-corner splash-frame-corner--bl" aria-hidden="true" />
+          <div className="splash-frame-corner splash-frame-corner--br" aria-hidden="true" />
+
+          <h1 className="splash-title" id="splash-title">
+            <span className="splash-name-line">
+              <span className="splash-name-shimmer">Parthiban</span>
+              <span className="splash-name-m">M</span>
+            </span>
+          </h1>
+          <p className="splash-role">
+            <span className="splash-prompt" aria-hidden="true">
+              &gt;
+            </span>
+            <span className="splash-role-text">Junior Cybersecurity Analyst</span>
+            <span className="splash-cursor" aria-hidden="true">
+              ▌
+            </span>
+          </p>
+        </div>
+
+        <button
+          ref={dismissRef}
+          type="button"
+          className="btn btn-primary splash-enter"
+          onClick={onDismiss}
+        >
+          Enter portfolio
+        </button>
+        <p className="splash-hint">Escape closes · Click below to continue</p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Hero profile (oval) ─────────────────────────────────────────────────────
 function HeroPhoto() {
   const [failed, setFailed] = useState(false)
@@ -180,6 +274,15 @@ function SectionHead({ label, title, sub }) {
 export default function App() {
   const [activeNav, setActiveNav] = useState('home')
   const [theme, setTheme] = useState(getInitialTheme)
+  const [splashOpen, setSplashOpen] = useState(true)
+
+  const dismissSplash = () => {
+    setSplashOpen(false)
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    requestAnimationFrame(() => document.getElementById('main')?.focus({ preventScroll: true }))
+  }
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -202,16 +305,34 @@ export default function App() {
 
   return (
     <>
-      <a className="skip-link" href="#main">Skip to content</a>
+      <SplashScreen
+        open={splashOpen}
+        onDismiss={dismissSplash}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(e) => {
+          if (splashOpen) {
+            e.preventDefault()
+            dismissSplash()
+          }
+        }}
+      >
+        Skip to content
+      </a>
 
       {/* ── Header ── */}
-      <header className="site-header">
+      <header className="site-header" inert={splashOpen}>
         <div className="container header-inner">
           <a className="brand" href="#top" aria-label="Go to top">
             <span className="brand-avatar" aria-hidden="true">PM</span>
             <span className="brand-stack">
               <span className="brand-title">Parthiban M</span>
-              <span className="brand-tagline">Cyber Security Expert</span>
+              <span className="brand-tagline">Junior Cybersecurity Analyst</span>
             </span>
           </a>
 
@@ -226,7 +347,7 @@ export default function App() {
             <button
               type="button"
               className="theme-toggle"
-              onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+              onClick={toggleTheme}
               aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
@@ -248,7 +369,7 @@ export default function App() {
       {/* ── Fixed Globe Background (whole page) ── */}
       <GlobeCanvas theme={theme} />
 
-      <main id="main">
+      <main id="main" tabIndex={-1} inert={splashOpen}>
         {/* ── Hero ── */}
         <section id="top" className="hero">
           <p className="hero-watermark" aria-hidden="true">
@@ -259,7 +380,7 @@ export default function App() {
               <h1 className="hero-title">
                 <span className="hero-name">Parthiban M</span>
               </h1>
-              <p className="hero-role">Cyber Security Expert</p>
+              <p className="hero-role">Junior Cybersecurity Analyst</p>
               <p className="hero-desc">
                 Cybersecurity-focused developer building secure backends, scalable APIs, and intelligent applications. I
                 specialize in finding weaknesses, strengthening systems, and delivering reliable software for real-world use.
@@ -588,7 +709,7 @@ export default function App() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="site-footer">
+      <footer className="site-footer" inert={splashOpen}>
         <div className="container footer-inner">
           <div className="footer-left">
             <span className="brand-title footer-brand">Parthiban M</span>
